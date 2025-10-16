@@ -1,5 +1,6 @@
 <?php
 require_once "../includes/session_manager.php";
+require_once "../includes/service_icons.php";
 include "../config/db.php";
 
 // Check authentication with session timeout
@@ -66,19 +67,8 @@ if (isset($_GET['service_id'])) {
                 <div class="card mb-4">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <?php 
-                            $service_name = strtolower($direct_book_service['name']);
-                            if (strpos($service_name, 'plumb') !== false) {
-                                echo '🔧 ';
-                            } elseif (strpos($service_name, 'electric') !== false) {
-                                echo '⚡ ';
-                            } elseif (strpos($service_name, 'clean') !== false) {
-                                echo '🧹 ';
-                            } else {
-                                echo '🏠 ';
-                            }
-                            echo htmlspecialchars($direct_book_service['name']); 
-                            ?>
+                            <?php echo ServiceIcons::getIconByKey($direct_book_service['icon_key'] ?? 'toolbox'); ?>
+                            <?php echo htmlspecialchars($direct_book_service['name']); ?>
                         </h3>
                         <?php if ($direct_book_service['description']): ?>
                             <p class="text-secondary"><?php echo htmlspecialchars($direct_book_service['description']); ?></p>
@@ -187,20 +177,7 @@ if (isset($_GET['service_id'])) {
                              data-category="<?php echo strtolower(str_replace(' ', '-', $service['category'] ?? 'general')); ?>"
                              data-min-price="<?php echo $min_rate ?: 0; ?>">
                             <div class="service-icon">
-                                <?php 
-                                $service_name = strtolower($service['name']);
-                                if (strpos($service_name, 'plumb') !== false) {
-                                    echo '🔧';
-                                } elseif (strpos($service_name, 'electric') !== false) {
-                                    echo '⚡';
-                                } elseif (strpos($service_name, 'clean') !== false) {
-                                    echo '🧹';
-                                } elseif (strpos($service_name, 'repair') !== false) {
-                                    echo '🔨';
-                                } else {
-                                    echo '🏠';
-                                }
-                                ?>
+                                <?php echo ServiceIcons::getIconByKey($service['icon_key'] ?? 'toolbox'); ?>
                             </div>
                             <h3><?php echo htmlspecialchars($service['name']); ?></h3>
                             <p class="service-description"><?php echo htmlspecialchars($service['description'] ?? 'Professional service tailored to your needs'); ?></p>
@@ -340,11 +317,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 <label for="categoryFilter">Category</label>
                 <select id="categoryFilter" class="form-control">
                     <option value="">All Categories</option>
-                    <option value="home-maintenance">Home Maintenance</option>
-                    <option value="electrical">Electrical</option>
-                    <option value="plumbing">Plumbing</option>
-                    <option value="cleaning">Cleaning</option>
-                    <option value="repair">Repair</option>
+                    <?php
+                    // Get unique service categories from database
+                    $categories = $conn->query("SELECT DISTINCT name FROM services ORDER BY name");
+                    while ($category = $categories->fetch_assoc()) {
+                        echo '<option value="' . strtolower(str_replace(' ', '-', $category['name'])) . '">' . htmlspecialchars($category['name']) . '</option>';
+                    }
+                    ?>
                 </select>
             </div>
             <div class="form-group">

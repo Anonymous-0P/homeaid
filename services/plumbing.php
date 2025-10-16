@@ -1,6 +1,26 @@
-<?php include "../includes/header.php"; ?>
-<?php include "../includes/navbar.php"; ?>
-<?php include "../config/db.php"; ?>
+<?php 
+include "../includes/header.php"; 
+include "../includes/navbar.php"; 
+include "../config/db.php"; 
+require_once "../includes/service_icons.php";
+
+// Get service info from database
+$service_name = 'plumbing';
+$service_info = null;
+$service_icon = '🔧'; // fallback
+
+try {
+    $stmt = $conn->prepare("SELECT name, description, icon_key FROM services WHERE name = ?");
+    $stmt->bind_param("s", $service_name);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($service_info = $result->fetch_assoc()) {
+        $service_icon = ServiceIcons::getIconByKey($service_info['icon_key']);
+    }
+} catch (Exception $e) {
+    // Use fallback icon if database error
+}
+?>
 
 <main>
     <div class="container">
@@ -12,7 +32,7 @@
                 <div class="col-half">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">🔧 Our Plumbing Services</h3>
+                            <h3 class="card-title"><?php echo $service_icon; ?> Our Plumbing Services</h3>
                         </div>
                         <div class="card-body">
                             <ul>

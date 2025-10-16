@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeAid - Professional Home Services at Your Fingertips</title>
+    <?php
+    // Include service icons helper and database connection
+    require_once 'includes/service_icons.php';
+    require_once 'config/db.php';
+    
+    // Fetch services from database
+    $db_services = [];
+    try {
+        $result = $conn->query("SELECT id, name, description, icon_key FROM services ORDER BY name");
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $db_services[] = $row;
+            }
+        }
+    } catch (Exception $e) {
+        // Continue with empty array if database error
+    }
+    ?>
     <style>
         * {
             margin: 0;
@@ -793,79 +811,54 @@
                     <p class="section-subtitle">Professional solutions for every home need</p>
                 </div>
                 <div class="service-grid">
-                    <div class="service-card">
-                        <div class="service-icon">🔧</div>
-                        <h3>Plumbing</h3>
-                        <p>Expert plumbers for leak repairs, pipe installation, and water heater services.</p>
-                        <a href="services/plumbing.php" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">⚡</div>
-                        <h3>Electrical</h3>
-                        <p>Licensed electricians for wiring, repairs, and smart home installations.</p>
-                        <a href="services/electrician.php" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🏠</div>
-                        <h3>Home Repair</h3>
-                        <p>Skilled handymen for painting, carpentry, and general maintenance.</p>
-                        <a href="#" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🧹</div>
-                        <h3>Cleaning</h3>
-                        <p>Professional deep cleaning for homes, offices, and post-construction sites.</p>
-                        <a href="#" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">❄️</div>
-                        <h3>HVAC Services</h3>
-                        <p>AC repair, installation, and maintenance for year-round comfort.</p>
-                        <a href="#" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🌿</div>
-                        <h3>Gardening</h3>
-                        <p>Landscaping, lawn care, and garden maintenance services.</p>
-                        <a href="#" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <!-- Newly added services -->
-                    <div class="service-card">
-                        <div class="service-icon">🪲</div>
-                        <h3>Pest Control</h3>
-                        <p>Eco-friendly pest elimination and preventive protection for your home.</p>
-                        <a href="services/pestcontrol.php" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🎨</div>
-                        <h3>Painting</h3>
-                        <p>Interior & exterior painting with professional surface prep and finish.</p>
-                        <a href="services/painting.php" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🔌</div>
-                        <h3>Appliance Repair</h3>
-                        <p>Fast diagnostics and repairs for all major household appliances.</p>
-                        <a href="services/appliance.php" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🛡️</div>
-                        <h3>Home Security</h3>
-                        <p>Smart surveillance, alarms, and secure access installations.</p>
-                        <a href="services/security.php" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🏗️</div>
-                        <h3>Roofing</h3>
-                        <p>Roof installation, leak repair, and weatherproof maintenance.</p>
-                        <a href="services/roofing.php" class="btn btn-primary">Book Now</a>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-icon">🪚</div>
-                        <h3>Carpentry</h3>
-                        <p>Custom woodwork, repairs, and installations for interiors and outdoors.</p>
-                        <a href="services/carpentry.php" class="btn btn-primary">Book Now</a>
-                    </div>
+                    <?php if (!empty($db_services)): ?>
+                        <?php foreach ($db_services as $service): ?>
+                            <div class="service-card">
+                                <div class="service-icon"><?php echo ServiceIcons::getIconByKey($service['icon_key']); ?></div>
+                                <h3><?php echo htmlspecialchars($service['name']); ?></h3>
+                                <p><?php echo htmlspecialchars($service['description']); ?></p>
+                                <a href="services/<?php echo str_replace(' ', '', strtolower($service['name'])); ?>.php" class="btn btn-primary">Book Now</a>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Fallback services if database is empty -->
+                        <div class="service-card">
+                            <div class="service-icon">🔧</div>
+                            <h3>Plumbing</h3>
+                            <p>Expert plumbers for leak repairs, pipe installation, and water heater services.</p>
+                            <a href="services/plumbing.php" class="btn btn-primary">Book Now</a>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">⚡</div>
+                            <h3>Electrical</h3>
+                            <p>Licensed electricians for wiring, repairs, and smart home installations.</p>
+                            <a href="services/electrician.php" class="btn btn-primary">Book Now</a>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">�</div>
+                            <h3>Home Repair</h3>
+                            <p>Skilled handymen for painting, carpentry, and general maintenance.</p>
+                            <a href="#" class="btn btn-primary">Book Now</a>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">🧹</div>
+                            <h3>Cleaning</h3>
+                            <p>Professional deep cleaning for homes, offices, and post-construction sites.</p>
+                            <a href="#" class="btn btn-primary">Book Now</a>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">❄️</div>
+                            <h3>HVAC Services</h3>
+                            <p>AC repair, installation, and maintenance for year-round comfort.</p>
+                            <a href="#" class="btn btn-primary">Book Now</a>
+                        </div>
+                        <div class="service-card">
+                            <div class="service-icon">�</div>
+                            <h3>Gardening</h3>
+                            <p>Landscaping, lawn care, and garden maintenance services.</p>
+                            <a href="#" class="btn btn-primary">Book Now</a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </section>
